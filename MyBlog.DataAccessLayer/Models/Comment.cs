@@ -1,6 +1,6 @@
 ﻿namespace MyBlog.DataAccessLayer.Models
 {
-    public class Comment : DbEntry
+    public class Comment : Entity
     {
 
     }

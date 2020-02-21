@@ -1,10 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using MyBlog.DataAccessLayer.Models;
-using MyBlog.WebApi;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MyBlog.DataAccessLayer
 {
