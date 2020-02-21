@@ -6,13 +6,16 @@ using System.Text;
 
 namespace MyBlog.DataAccessLayer.Models
 {
-    public abstract class DbEntry
+    public abstract class Entity
     {
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
+
+        [BsonRequired]
+        public string UserId { get; set; }
         [BsonRequired]
         [BsonDateTimeOptions]
-        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedOn { get; set; }
         [BsonRequired]
         public string Body { get; set; }
     }

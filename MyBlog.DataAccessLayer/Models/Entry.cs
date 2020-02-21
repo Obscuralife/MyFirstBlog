@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MyBlog.DataAccessLayer.Models
 {
-    public class Entry : DbEntry
+    public class Entry : Entity
     {
         [BsonRequired]
         public string Article { get; set; }
