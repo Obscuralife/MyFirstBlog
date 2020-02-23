@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using MyBlog.DataAccessLayer.Models;
 using MyBlog.Services;
 using MyBlog.Services.Models;
+using MyBlog.WebApi.Filters;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace MyBlog.WebApi.Controllers
@@ -13,6 +14,7 @@ namespace MyBlog.WebApi.Controllers
     [Produces("application/json")]
     [Route("api/entries")]
     [ApiController]
+    [CustomExceptionFilter]
     public class EntryController : ControllerBase
     {
         private readonly IEntryService service;
@@ -42,10 +44,6 @@ namespace MyBlog.WebApi.Controllers
         [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<IEnumerable<Entry>>> GetEntries(string category)
         {
-            if (category.Length < 2)
-            {
-                return BadRequest("category length");
-            }
             var entries = await service.GetEntriesAsync(category);
             return Ok(entries);
         }
@@ -57,10 +55,6 @@ namespace MyBlog.WebApi.Controllers
         [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<Entry>> GetEntryByArticle(string article)
         {
-            if (article.Length < 2)
-            {
-                return BadRequest("article length");
-            }
             var entry = await service.GetEntryAsync(article);
             return Ok(entry);
         }
@@ -71,10 +65,6 @@ namespace MyBlog.WebApi.Controllers
         [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<Entry>> GetEntryById(string entryId)
         {
-            if (entryId.Length < 24)
-            {
-                return BadRequest("entry id length");
-            }
             var entry = await service.GetEntryByIdAsync(entryId);
             return Ok(entry);
         }
@@ -83,7 +73,7 @@ namespace MyBlog.WebApi.Controllers
         [Route("")]
         [SwaggerResponse((int)HttpStatusCode.Created, Description = "Creates a new entry.")]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
-        [SwaggerResponse((int)HttpStatusCode.Conflict)]
+        [SwaggerResponse((int)HttpStatusCode.Conflict, Description = "Entry with this article already existed.")]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult> AddEntry([FromBody] EntryRequest createRequest)
         {
@@ -93,10 +83,6 @@ namespace MyBlog.WebApi.Controllers
             }
 
             var entry = await service.CreateEntryAsync(createRequest);
-            if (entry is null)
-            {
-                return BadRequest($"entry with '{createRequest.Article}' article already exists");
-            }
             var location = string.Format("/api/entries/{0}", entry.Id);
             return Created(location, entry);
         }

@@ -10,6 +10,7 @@ namespace MyBlog.Services.Models
             RuleFor(r => r.Article).MinimumLength(2);
             RuleFor(r => r.Body).MinimumLength(20);
             RuleFor(r => r.Category).MinimumLength(2);
+            RuleFor(r => r.Category).MaximumLength(10);
         }
     }
 }

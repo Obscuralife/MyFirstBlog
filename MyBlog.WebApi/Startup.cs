@@ -25,6 +25,7 @@ namespace MyBlog.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
             services.AddMvc().AddFluentValidation();
             services.AddControllers();
             services.Configure<Settings>(Configuration.GetSection("MongoConnection"));
@@ -61,12 +62,13 @@ namespace MyBlog.WebApi
             {
                 c.SwaggerEndpoint("/swagger/v0.01/swagger.json", "My API V0.01");
             });
+            
+            app.UseCors(builder => builder.AllowAnyOrigin());
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
-
         }
     }
 }
