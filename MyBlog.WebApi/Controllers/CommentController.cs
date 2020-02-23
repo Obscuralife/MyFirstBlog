@@ -28,7 +28,7 @@ namespace MyBlog.WebApi.Controllers
 
         [HttpGet]
         [Route("")]
-        [SwaggerResponse((int)HttpStatusCode.OK, Description = "Returns a list of entries.", Type = typeof(Comment[]))]
+        [SwaggerResponse((int)HttpStatusCode.OK, Description = "Returns a list of comments.", Type = typeof(Comment[]))]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<IEnumerable<Comment>>> GetComments()
         {
