@@ -42,7 +42,7 @@ namespace MyBlog.Services
             var entries = await context.Entries.Find(i => i.Article == request.Article).FirstOrDefaultAsync();
             if (entries != null)
             {
-                throw new Exception();
+                throw new RequestedResourceHasConflictException(nameof(request.Article));
             }
             var entry = mapper.Map<EntryRequest, Entry>(request);
             await context.Entries.InsertOneAsync(entry);
@@ -51,42 +51,113 @@ namespace MyBlog.Services
 
         public async Task<IEnumerable<Entry>> GetEntriesAsync()
         {
-            return await context.Entries.Find(x => true).ToListAsync();
+            var entries = await context.Entries.Find(x => true).ToListAsync();
+            if (entries is null)
+            {
+                throw new RequestedResourceNotFoundException(nameof(context.Entries));
+            }
+
+            return entries;
         }
 
         public async Task<IEnumerable<Entry>> GetEntriesAsync(string category)
         {
-            return await context.Entries.Find(x => string.Equals(x.Category, category, StringComparison.InvariantCultureIgnoreCase)).ToListAsync();
+            ValidateRequestLength(category, nameof(category));
+            var entries = await this.context.Entries.Find(x => x.Category.ToLower() == category.ToLower()).ToListAsync();
+            if (entries is null)
+            {
+                throw new RequestedResourceNotFoundException(nameof(category));
+            }
+
+            return entries;
         }
 
         public async Task<Entry> GetEntryAsync(string article)
         {
-            return await context.Entries.Find(x => string.Equals(x.Article, article, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefaultAsync();
+            ValidateRequestLength(article, nameof(article));
+            var entries = await context.Entries.Find(x => x.Article.ToLower() == article.ToLower()).FirstOrDefaultAsync();
+            if (entries is null)
+            {
+                throw new RequestedResourceNotFoundException(nameof(article));
+            }
 
+            return entries;
         }
 
         public async Task<Entry> RemoveEntryAsync(string id)
         {
-            return await context.Entries.FindOneAndDeleteAsync(x => x.Id == id);
+            ValidateIdLength(id, nameof(id));
+            var entry = await context.Entries.FindOneAndDeleteAsync(x => x.Id == id);
+            if (entry is null)
+            {
+                throw new RequestedResourceNotFoundException(nameof(id));
+            }
+            return entry;
         }
 
-        public async Task<Entry> UpdateEntryAsync(string id, string body)
+        public async Task<Entry> UpdateEntryAsync(string id, UpdateRequest request)
         {
-            return await context.Entries.FindOneAndUpdateAsync((i) => i.Id == id,
+            ValidateIdLength(id, nameof(id));
+            var entry = await context.Entries.FindOneAndUpdateAsync((i) => i.Id == id,
                                 Builders<Entry>.Update
-                                .Set(j => j.Body, body)
+                                .Set(j => j.Body, request.NewContent)
                                 .Set(k => k.UpdatedOn, DateTime.Now));
-        }    
-        
-        public async Task AddCommentAsync(CommentRequest request, string entryId)
+            if (entry is null)
+            {
+                throw new RequestedResourceNotFoundException(nameof(id));
+            }
+
+            return entry;
+        }
+
+        public async Task<Comment> AddCommentAsync(string entryId, CommentRequest request)
         {
             var entry = await this.GetEntryByIdAsync(entryId);
-            await commentService.AddCommentAsync(request, entry);
+            if (entry is null)
+            {
+                throw new RequestedResourceNotFoundException(nameof(entryId));
+            }
+            var comment = await commentService.AddCommentAsync(request, entry);
+
+            if (entry.Comments is null)
+            {
+                entry.Comments = new List<Comment>() { comment };
+            }
+            else
+            {
+                entry.Comments.Add(comment);
+            }
+            var newCommentList = entry.Comments;
+            await context.Entries.UpdateOneAsync((i) => i.Id == entry.Id,
+                                    Builders<Entry>.Update
+                                    .Set(j => j.Comments, newCommentList));
+            return comment;
         }
 
         public async Task<Entry> GetEntryByIdAsync(string entryId)
         {
-            return await context.Entries.Find(x => x.Id == entryId).FirstOrDefaultAsync();
+            var entry = await context.Entries.Find(x => x.Id == entryId).FirstOrDefaultAsync();
+            if (entry is null)
+            {
+                throw new RequestedResourceNotFoundException(nameof(entryId));
+            }
+            return entry;
+        }
+
+        private void ValidateRequestLength(string value, string argumentsName)
+        {
+            if (value.Length < 2 || value.Length > 10)
+            {
+                throw new RequestedResourceHasBadRequest($"Wrong {argumentsName} length");
+            }
+        }
+
+        private void ValidateIdLength(string id, string idName)
+        {
+            if (id.Length != 24)
+            {
+                throw new RequestedResourceHasBadRequest($"Wrong {idName} length");
+            }
         }
     }
 }

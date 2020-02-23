@@ -1,4 +1,5 @@
 using AutoMapper;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -8,29 +9,42 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using MyBlog.DataAccessLayer;
 using MyBlog.Services;
+using MyBlog.Services.Abstract;
+using MyBlog.Services.Models;
 
 namespace MyBlog.WebApi
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-        }
-
-        public IConfiguration Configuration { get; }
+        }       
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
             services.AddMvc().AddFluentValidation();
             services.AddControllers();
-            services.Configure<Settings>(Configuration);
+            services.Configure<Settings>(Configuration.GetSection("MongoConnection"));
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v0.01", new OpenApiInfo { Title = "My first Blog", Version = "v0.01" });
             });
+
             services.AddSingleton(new MapperConfiguration(x => x.AddProfile(new MappingProfile())).CreateMapper());
+            services.AddSingleton<IEntryService, EntryService>();
+            services.AddSingleton<ICommentService, CommentService>();
+            services.AddSingleton<IUserService, UserService>();
+
+            services.AddTransient<IValidator<EntryRequest>, EntryRequestValidator>();
+            services.AddTransient<IValidator<CommentRequest>, CommentRequestValidator>();
+            services.AddTransient<IValidator<RegisterRequest>, RegisterRequestValidator>();
+            services.AddTransient<IValidator<LogInRequest>, LogInRequestValidator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,14 +67,15 @@ namespace MyBlog.WebApi
             // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V0.01");
+                c.SwaggerEndpoint("/swagger/v0.01/swagger.json", "My API V0.01");
             });
+            
+            app.UseCors(builder => builder.AllowAnyOrigin());
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
-
         }
     }
 }
