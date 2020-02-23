@@ -7,6 +7,7 @@ namespace MyBlog.Services.Models
         public EntryRequestValidator()
         {
             RuleFor(r => r.Article).MaximumLength(2000);
+            RuleFor(r => r.Article).MinimumLength(2);
             RuleFor(r => r.Body).MinimumLength(20);
             RuleFor(r => r.Category).MinimumLength(2);
         }
