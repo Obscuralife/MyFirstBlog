@@ -21,11 +21,15 @@ namespace MyBlog.WebApi.Controllers
 
         public EntryController(IEntryService service)
         {
+<<<<<<< HEAD
             if (service is null)
             {
                 throw new ArgumentNullException(nameof(service));
             }
             this.service = service;
+=======
+            this.service = service ?? throw new ArgumentNullException(nameof(service));
+>>>>>>> Service
         }
 
         [HttpGet]

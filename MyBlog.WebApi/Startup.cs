@@ -9,6 +9,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using MyBlog.DataAccessLayer;
 using MyBlog.Services;
+<<<<<<< HEAD
+=======
+using MyBlog.Services.Abstract;
+>>>>>>> Service
 using MyBlog.Services.Models;
 
 namespace MyBlog.WebApi
@@ -29,15 +33,32 @@ namespace MyBlog.WebApi
             services.AddMvc().AddFluentValidation();
             services.AddControllers();
             services.Configure<Settings>(Configuration.GetSection("MongoConnection"));
+<<<<<<< HEAD
+=======
+
+>>>>>>> Service
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v0.01", new OpenApiInfo { Title = "My first Blog", Version = "v0.01" });
             });
+<<<<<<< HEAD
             services.AddSingleton(new MapperConfiguration(x => x.AddProfile(new MappingProfile())).CreateMapper());
             services.AddSingleton<IEntryService, EntryService>();
             services.AddSingleton<ICommentService, CommentService>();
             services.AddTransient<IValidator<EntryRequest>, EntryRequestValidator>();
             services.AddTransient<IValidator<CommentRequest>, CommentRequestValidator>();
+=======
+
+            services.AddSingleton(new MapperConfiguration(x => x.AddProfile(new MappingProfile())).CreateMapper());
+            services.AddSingleton<IEntryService, EntryService>();
+            services.AddSingleton<ICommentService, CommentService>();
+            services.AddSingleton<IUserService, UserService>();
+
+            services.AddTransient<IValidator<EntryRequest>, EntryRequestValidator>();
+            services.AddTransient<IValidator<CommentRequest>, CommentRequestValidator>();
+            services.AddTransient<IValidator<RegisterRequest>, RegisterRequestValidator>();
+            services.AddTransient<IValidator<LogInRequest>, LogInRequestValidator>();
+>>>>>>> Service
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

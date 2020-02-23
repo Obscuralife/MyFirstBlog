@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyBlog.DataAccessLayer.Models;
 using MyBlog.Services;
+<<<<<<< HEAD
+=======
+using MyBlog.WebApi.Filters;
+>>>>>>> Service
 using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
@@ -13,17 +17,25 @@ namespace MyBlog.WebApi.Controllers
     [Produces("application/json")]
     [Route("api/comments")]
     [ApiController]
+<<<<<<< HEAD
+=======
+    [CustomExceptionFilter]
+>>>>>>> Service
     public class CommentController : ControllerBase
     {
         private readonly ICommentService service;
 
         public CommentController(ICommentService service)
         {
+<<<<<<< HEAD
             if (service is null)
             {
                 throw new ArgumentNullException(nameof(service));
             }
             this.service = service;
+=======
+            this.service = service ?? throw new ArgumentNullException(nameof(service));
+>>>>>>> Service
         }
 
         [HttpGet]
