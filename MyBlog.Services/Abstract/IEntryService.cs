@@ -1,5 +1,4 @@
-﻿using MongoDB.Driver;
-using MyBlog.DataAccessLayer.Models;
+﻿using MyBlog.DataAccessLayer.Models;
 using MyBlog.Services.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -14,7 +13,7 @@ namespace MyBlog.Services
         Task<Entry> GetEntryByIdAsync(string entryId);
         Task<Entry> CreateEntryAsync(EntryRequest entry);
         Task<Entry> RemoveEntryAsync(string id);
-        Task<Entry> UpdateEntryAsync(string id, string body);
-        Task AddCommentAsync(CommentRequest request, string EntryId);
+        Task<Entry> UpdateEntryAsync(string id, UpdateRequest updateRequest);
+        Task<Comment> AddCommentAsync(string entryId, CommentRequest request);
     }
 }

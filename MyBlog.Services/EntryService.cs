@@ -42,7 +42,7 @@ namespace MyBlog.Services
             var entries = await context.Entries.Find(i => i.Article == request.Article).FirstOrDefaultAsync();
             if (entries != null)
             {
-                throw new Exception();
+                return null;
             }
             var entry = mapper.Map<EntryRequest, Entry>(request);
             await context.Entries.InsertOneAsync(entry);
@@ -56,12 +56,12 @@ namespace MyBlog.Services
 
         public async Task<IEnumerable<Entry>> GetEntriesAsync(string category)
         {
-            return await context.Entries.Find(x => string.Equals(x.Category, category, StringComparison.InvariantCultureIgnoreCase)).ToListAsync();
+            return await this.context.Entries.Find(x => x.Category.ToLower() == category.ToLower()).ToListAsync();
         }
 
         public async Task<Entry> GetEntryAsync(string article)
         {
-            return await context.Entries.Find(x => string.Equals(x.Article, article, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefaultAsync();
+            return await context.Entries.Find(x => x.Article.ToLower() == article.ToLower()).FirstOrDefaultAsync();
 
         }
 
@@ -70,18 +70,32 @@ namespace MyBlog.Services
             return await context.Entries.FindOneAndDeleteAsync(x => x.Id == id);
         }
 
-        public async Task<Entry> UpdateEntryAsync(string id, string body)
+        public async Task<Entry> UpdateEntryAsync(string id, UpdateRequest request)
         {
             return await context.Entries.FindOneAndUpdateAsync((i) => i.Id == id,
                                 Builders<Entry>.Update
-                                .Set(j => j.Body, body)
+                                .Set(j => j.Body, request.NewContent)
                                 .Set(k => k.UpdatedOn, DateTime.Now));
-        }    
-        
-        public async Task AddCommentAsync(CommentRequest request, string entryId)
+        }
+
+        public async Task<Comment> AddCommentAsync(string entryId, CommentRequest request)
         {
             var entry = await this.GetEntryByIdAsync(entryId);
-            await commentService.AddCommentAsync(request, entry);
+            var comment = await commentService.AddCommentAsync(request, entry);
+
+            if (entry.Comments is null)
+            {
+                entry.Comments = new List<Comment>() { comment };
+            }
+            else
+            {
+                entry.Comments.Add(comment);
+            }
+            var newCommentList = entry.Comments;
+            await context.Entries.UpdateOneAsync((i) => i.Id == entry.Id,
+                                    Builders<Entry>.Update
+                                    .Set(j => j.Comments, newCommentList));
+            return comment;
         }
 
         public async Task<Entry> GetEntryByIdAsync(string entryId)

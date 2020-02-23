@@ -17,6 +17,6 @@ namespace MyBlog.DataAccessLayer.Models
         public List<Comment> Comments { get; set; }
 
         [BsonIgnoreIfNull]
-        public DateTime UpdatedOn { get; set; }
+        public DateTime? UpdatedOn { get; set; }
     }
 }

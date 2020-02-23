@@ -31,7 +31,7 @@ namespace MyBlog.Services
             context = new CommentContext(options);
             this.mapper = mapper;
         }
-        public async Task<Comment> GetCommentsAsync(string id)
+        public async Task<Comment> GetCommentAsync(string id)
         {
             return await context.Comments.Find(i => i.Id == id).FirstOrDefaultAsync();
         }
@@ -46,16 +46,11 @@ namespace MyBlog.Services
             return await context.Comments.Find(i => i.UserId == userId).ToListAsync();
         }
 
-        public IEnumerable<Comment> GetComments(Entry entry)
-        {
-            return entry.Comments.AsEnumerable();
-        }
-
         public async Task<Comment> AddCommentAsync(CommentRequest request, Entry entry)
         {
             var comment = mapper.Map<CommentRequest, Comment>(request);
-            await context.Comments.InsertOneAsync(comment);
-            entry.Comments.Add(comment);
+            await context.Comments.InsertOneAsync(comment);           
+            
             return comment;
         }
     }
