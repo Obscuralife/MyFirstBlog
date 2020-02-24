@@ -37,7 +37,7 @@ namespace MyBlog.WebApi.Filters
                     {
                         context.Result = new ContentResult()
                         {
-                            Content = $"{context.Exception.Message}",
+                            Content = $"wrong {context.Exception.Message}",
                             StatusCode = (int)HttpStatusCode.BadRequest
                         };
                         break;

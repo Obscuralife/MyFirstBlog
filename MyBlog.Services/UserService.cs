@@ -45,7 +45,7 @@ namespace MyBlog.Services
             var user = userManager.Users.SingleOrDefault(i => string.Equals(i.Email, request.Email, StringComparison.InvariantCultureIgnoreCase));
             var token = AuthenticationHelper.GenerateJwtToken(request.Email, user, configuration);
 
-            return new LoginResponce(token, user.UserName, user.Email);
+            return new LogInResponce(token, user.UserName, user.Email);
         }
 
         public async Task<IIdentityResponce> RegisterUserAsync(RegisterRequest request)
@@ -54,7 +54,9 @@ namespace MyBlog.Services
             var createdResult = await userManager.CreateAsync(dbUser, request.Password);
             if (!createdResult.Succeeded)
             {
-                throw new RequestedResourceHasBadRequest(nameof(request));
+                var errors = ": ";
+                Array.ForEach(createdResult.Errors.ToArray(), i => errors += $"{i.Code} - {i.Description}");
+                throw new RequestedResourceHasBadRequest(nameof(request) + errors);
             }
 
             await signInManager.SignInAsync(dbUser, false);

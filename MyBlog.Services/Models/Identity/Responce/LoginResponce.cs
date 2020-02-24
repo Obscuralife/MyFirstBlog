@@ -4,9 +4,9 @@ using System.Text;
 
 namespace MyBlog.Services.Models.Identity
 {
-    public class LoginResponce : IIdentityResponce
+    public class LogInResponce : IIdentityResponce
     {
-        public LoginResponce(string token, string name, string email)
+        public LogInResponce(string token, string name, string email)
         {
             this.Token = token;
             this.Name = name;
