@@ -39,7 +39,7 @@ namespace MyBlog.Services
             var loginResult = await signInManager.PasswordSignInAsync(request.Email, request.Password, false, false);
             if (!loginResult.Succeeded)
             {
-                throw new RequestedResourceHasBadRequest(nameof(request));
+                //throw new RequestedResourceHasBadRequest(nameof(request));
             }
 
             var user = userManager.Users.SingleOrDefault(i => string.Equals(i.Email, request.Email, StringComparison.InvariantCultureIgnoreCase));

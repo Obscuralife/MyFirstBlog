@@ -67,15 +67,13 @@ namespace MyBlog.WebApi
             services.AddSingleton(new MapperConfiguration(x => x.AddProfile(new MappingProfile())).CreateMapper());
             services.AddSingleton<IEntryService, EntryService>();
             services.AddSingleton<ICommentService, CommentService>();
-            services.AddTransient<IUserService, UserService>();
+            services.AddScoped<IUserService, UserService>();
 
             services.AddTransient<IValidator<EntryRequest>, EntryRequestValidator>();
             services.AddTransient<IValidator<CommentRequest>, CommentRequestValidator>();
             services.AddTransient<IValidator<UpdateRequest>, UpdateRequestValidator>();
             services.AddTransient<IValidator<LogInRequest>, LogInRequestValidator>();
             services.AddTransient<IValidator<RegisterRequest>, RegisterRequestValidator>();
-
-            services.AddSingleton(new MapperConfiguration(x => x.AddProfile(new MappingProfile())).CreateMapper());
 
             // Configure Identity MongoDB
             services.AddIdentityMongoDbProvider<DbUser, UserRole>(identityOptions =>
@@ -85,9 +83,13 @@ namespace MyBlog.WebApi
                 identityOptions.Password.RequireUppercase = false;
                 identityOptions.Password.RequireNonAlphanumeric = false;
                 identityOptions.Password.RequireDigit = false;
+                identityOptions.User.RequireUniqueEmail = true;
             }, mongoIdentityOptions =>
             {
-                mongoIdentityOptions.ConnectionString = "mongodb://localhost/IdentityBlog";
+                mongoIdentityOptions.UseDefaultIdentity = false;
+                mongoIdentityOptions.ConnectionString = $"{Configuration.GetSection("MongoConnection:ConnectionString").Value}/{ Configuration.GetSection("MongoConnection:Database").Value}";
+                mongoIdentityOptions.UsersCollection = Configuration.GetSection("MongoConnection:UsersCollection").Value;
+                mongoIdentityOptions.RolesCollection = Configuration.GetSection("MongoConnection:UserRolesCollection").Value;
             });
 
             // Add Jwt Authentication

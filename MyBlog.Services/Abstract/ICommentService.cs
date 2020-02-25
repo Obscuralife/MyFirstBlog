@@ -12,5 +12,7 @@ namespace MyBlog.Services
         Task<IEnumerable<Comment>> GetUserCommentsAsync(string userId);
         Task<Comment> GetCommentAsync(string id);
         Task<Comment> AddCommentAsync(CommentRequest request, Entry entry);
+        Task<Comment> RemoveCommentAsync(string commentId);
+        Task RemoveCommentsAsync(IEnumerable<Comment> comments);
     }
 }

@@ -53,5 +53,19 @@ namespace MyBlog.Services
             
             return comment;
         }
+
+        public async Task<Comment> RemoveCommentAsync(string commentId)
+        {
+            var comment = await context.Comments.FindOneAndDeleteAsync(i => i.Id == commentId);
+            return comment;
+        }
+
+        public async Task RemoveCommentsAsync(IEnumerable<Comment> comments)
+        {
+            foreach (var comment in comments)
+            {
+                await RemoveCommentAsync(comment.Id);
+            }
+        }
     }
 }

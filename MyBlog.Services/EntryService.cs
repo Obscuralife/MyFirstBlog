@@ -88,6 +88,10 @@ namespace MyBlog.Services
         {
             ValidateIdLength(id, nameof(id));
             var entry = await context.Entries.FindOneAndDeleteAsync(x => x.Id == id);
+            if (entry.Comments != null)
+            {
+                await commentService.RemoveCommentsAsync(entry.Comments);
+            }
             if (entry is null)
             {
                 throw new RequestedResourceNotFoundException(nameof(id));
