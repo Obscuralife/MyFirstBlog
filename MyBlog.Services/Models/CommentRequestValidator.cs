@@ -10,7 +10,6 @@ namespace MyBlog.Services.Models
         public CommentRequestValidator()
         {
             RuleFor(r => r.Body).MaximumLength(200);
-            RuleFor(r => r.UserId).GreaterThanOrEqualTo("1");
         }
     }
 }

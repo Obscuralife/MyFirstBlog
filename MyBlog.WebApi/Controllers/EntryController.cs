@@ -2,8 +2,12 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MyBlog.DataAccessLayer.Models;
+using MyBlog.DataAccessLayer.Models.Identity;
 using MyBlog.Services;
 using MyBlog.Services.Models;
 using MyBlog.WebApi.Filters;
@@ -18,15 +22,13 @@ namespace MyBlog.WebApi.Controllers
     public class EntryController : ControllerBase
     {
         private readonly IEntryService service;
+        private readonly UserManager<DbUser> userManager;
 
-        public EntryController(IEntryService service)
+
+        public EntryController(IEntryService service, UserManager<DbUser> userManager)
         {
-            if (service is null)
-            {
-                throw new ArgumentNullException(nameof(service));
-            }
-            this.service = service;
             this.service = service ?? throw new ArgumentNullException(nameof(service));
+            this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         }
 
         [HttpGet]
@@ -72,6 +74,7 @@ namespace MyBlog.WebApi.Controllers
 
         [HttpPost]
         [Route("")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [SwaggerResponse((int)HttpStatusCode.Created, Description = "Creates a new entry.")]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
         [SwaggerResponse((int)HttpStatusCode.Conflict, Description = "Entry with this article already existed.")]
@@ -90,6 +93,7 @@ namespace MyBlog.WebApi.Controllers
 
         [HttpDelete]
         [Route("{entryId}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [SwaggerResponse((int)HttpStatusCode.NoContent, Description = "Deletes an existed entry.")]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
@@ -102,6 +106,7 @@ namespace MyBlog.WebApi.Controllers
 
         [HttpPut]
         [Route("{entryId}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [SwaggerResponse((int)HttpStatusCode.NoContent, Description = "Updates an existed entry.")]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
@@ -119,6 +124,7 @@ namespace MyBlog.WebApi.Controllers
 
         [HttpPost]
         [Route("{entryId}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [SwaggerResponse((int)HttpStatusCode.NoContent, Description = "Add comment to entry.")]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
@@ -129,7 +135,7 @@ namespace MyBlog.WebApi.Controllers
             {
                 return BadRequest(ModelState);
             }
-
+            request.UserId = userManager.GetUserId(User);
             var comment = await service.AddCommentAsync(entryId, request);
             return Ok(comment);
         }

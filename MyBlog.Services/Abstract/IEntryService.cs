@@ -1,6 +1,7 @@
 ﻿using MyBlog.DataAccessLayer.Models;
 using MyBlog.Services.Models;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace MyBlog.Services

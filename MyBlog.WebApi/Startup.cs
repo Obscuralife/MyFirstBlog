@@ -42,31 +42,31 @@ namespace MyBlog.WebApi
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v0.01", new OpenApiInfo { Title = "My first Blog", Version = "v0.01" });
-                //  c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                //  {
-                //      In = ParameterLocation.Header,
-                //      Description = "Please insert JWT with Bearer into field",
-                //      Name = "Authorization",
-                //      Type = SecuritySchemeType.ApiKey
-                //  });
-                //  c.AddSecurityRequirement(new OpenApiSecurityRequirement {
-                // {
-                //   new OpenApiSecurityScheme
-                //   {
-                //     Reference = new OpenApiReference
-                //     {
-                //       Type = ReferenceType.SecurityScheme,
-                //       Id = "Bearer"
-                //     }
-                //    },
-                //    new string[] { }
-                //  }
-                //});
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Please insert JWT with Bearer into field",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+                 {
+                   new OpenApiSecurityScheme
+                   {
+                     Reference = new OpenApiReference
+                     {
+                       Type = ReferenceType.SecurityScheme,
+                       Id = "Bearer"
+                     }
+                    },
+                    new string[] { }
+                  }
+                });
             });
 
             services.AddSingleton(new MapperConfiguration(x => x.AddProfile(new MappingProfile())).CreateMapper());
-            services.AddSingleton<IEntryService, EntryService>();
-            services.AddSingleton<ICommentService, CommentService>();
+            services.AddScoped<IEntryService, EntryService>();
+            services.AddScoped<ICommentService, CommentService>();
             services.AddScoped<IUserService, UserService>();
 
             services.AddTransient<IValidator<EntryRequest>, EntryRequestValidator>();

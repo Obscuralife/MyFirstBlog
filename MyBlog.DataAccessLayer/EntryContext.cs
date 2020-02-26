@@ -6,8 +6,6 @@ namespace MyBlog.DataAccessLayer
 {
     public class EntryContext
     {
-        private readonly IMongoDatabase mongoDatabase;
-        private readonly string Collection;
         public EntryContext(IOptions<Settings> options)
         {
             var client = new MongoClient(options.Value.ConnectionString);
@@ -15,6 +13,8 @@ namespace MyBlog.DataAccessLayer
             Collection = options.Value.EntriesCollection;
         }
 
+        public IMongoDatabase mongoDatabase { get; }
+        public string Collection { get; }
         public IMongoCollection<Entry> Entries { get => mongoDatabase.GetCollection<Entry>(Collection); }
     }
 }

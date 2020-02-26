@@ -23,13 +23,8 @@ namespace MyBlog.Services
                 throw new ArgumentNullException(nameof(options));
             }
 
-            if (mapper is null)
-            {
-                throw new ArgumentNullException(nameof(mapper));
-            }
-
             context = new CommentContext(options);
-            this.mapper = mapper;
+            this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
         public async Task<Comment> GetCommentAsync(string id)
         {
